@@ -1,4 +1,4 @@
-SharpClaw.ProviderIntegrations: Provider integration packages for SharpClaw
+SharpClaw.Persistence: Official persistence modules for SharpClaw
 Copyright (C) 2026 mkn8rn
 Contact: mkn8rn@hotmail.com
 
