@@ -86,6 +86,37 @@ public sealed class PersistenceModuleTests
         }
     }
 
+    [Test]
+    public void SQLite_AppliesItsOwnedMigrationToAnEmptyDatabase()
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:SQLite"] = "Data Source=:memory:",
+            })
+            .Build();
+        using var services = new ServiceCollection().BuildServiceProvider();
+        var provider = new SQLitePersistenceProvider();
+        var options = new SharpClawPersistenceOptions { ProviderKey = provider.Key };
+        var builder = new DbContextOptionsBuilder<Runtime.INF.Persistence.SharpClawDbContext>();
+        provider.Configure(
+            builder,
+            new SharpClawPersistenceProviderContext(
+                services,
+                configuration,
+                options,
+                typeof(Runtime.INF.Persistence.SharpClawDbContext),
+                UseMigrations: true));
+        using var dbContext = new Runtime.INF.Persistence.SharpClawDbContext(builder.Options);
+        dbContext.Database.OpenConnection();
+
+        dbContext.Database.Migrate();
+
+        dbContext.Database.GetAppliedMigrations()
+            .Should().ContainSingle().Which.Should().Be("20260920114922_InitialCreate");
+        dbContext.Database.HasPendingModelChanges().Should().BeFalse();
+    }
+
     private static IEnumerable<TestCaseData> RelationalMigrationCases()
     {
         yield return new TestCaseData(
