@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: SharpClaw-NET/SharpClaw
-          ref: 4a09d2395523f1231be5c8ded7a9569a76714216
+          ref: 879c23255a0716069ba217509768609c0e2c4b42
           path: SharpClaw
 
       - name: Setup .NET
@@ -122,7 +122,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: SharpClaw-NET/SharpClaw
-          ref: 4a09d2395523f1231be5c8ded7a9569a76714216
+          ref: 879c23255a0716069ba217509768609c0e2c4b42
           path: SharpClaw
 
       - name: Setup .NET
