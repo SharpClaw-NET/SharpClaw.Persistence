@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: SharpClaw-NET/SharpClaw
-          ref: release/storage-module-review-v2
+          ref: 78d6e8e4da0b85ea60ee81b653f3ec52ff83d83b
           path: SharpClaw
 
       - name: Setup .NET
@@ -44,6 +44,26 @@ jobs:
 
           ./build/BuildFrozenBom.ps1 -Root "${{ runner.temp }}\sharpclaw-frozen-bom"
 
+      - name: Verify persistence package identity
+        shell: pwsh
+        env:
+          NUGET_PACKAGES: ${{ runner.temp }}\sharpclaw-frozen-bom\packages
+          SHARPCLAW_PERSISTENCE_PACKAGE_ROOT: ${{ runner.temp }}\sharpclaw-frozen-bom\feed
+          SHARPCLAW_PERSISTENCE_PACKAGE_VERSION: 0.5.0-dev.20260920.1
+          SHARPCLAW_PERSISTENCE_COMMIT: efbfaea0ab4ecff2bc55e13e37e48096468e4d70
+        run: >
+          dotnet test
+          "${{ runner.temp }}\sharpclaw-frozen-bom\sources\persistence\SharpClaw.Persistence.Tests\SharpClaw.Persistence.Tests.csproj"
+          --configuration Release
+          --no-restore
+          --filter "FullyQualifiedName~PackageIdentityTests.PackedReleaseIdentityMatchesSourceAndReviewedCommit"
+          -p:ArtifactsPath="${{ runner.temp }}\sharpclaw-frozen-bom\artifacts\persistence"
+          -p:UseArtifactsOutput=true
+          -p:SharpClawArtifactsRoot="${{ runner.temp }}\sharpclaw-frozen-bom\artifacts\persistence"
+          -p:Version=0.5.0-dev.20260920.1
+          -p:InformationalVersion=0.5.0-dev.20260920.1
+          -p:ContinuousIntegrationBuild=true
+
       - name: Upload frozen package graph
         uses: actions/upload-artifact@v4
         with:
@@ -55,3 +75,103 @@ jobs:
           if-no-files-found: error
           retention-days: 7
           compression-level: 0
+
+  correctness:
+    name: Correctness / ${{ matrix.domain }}
+    needs: frozen-bom
+    runs-on: windows-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - domain: Architecture Core Dependencies
+            filter: 'FullyQualifiedName~SharpClaw.Tests.Architecture.CoreDependencyGuardrailTests'
+          - domain: Architecture Module Dependencies
+            filter: 'FullyQualifiedName~SharpClaw.Tests.Architecture.RegistrationDependencyGuardrailTests|FullyQualifiedName~SharpClaw.Tests.Architecture.ProductionRegistrationNeutralityTests'
+          - domain: Runtime Composition
+            filter: 'FullyQualifiedName~SharpClaw.Tests.Architecture.CanonicalJobsRouteBoundaryTests'
+          - domain: Gateway Boundaries
+            filter: 'FullyQualifiedName~SharpClaw.Tests.Gateway.GatewayContractsIsolationTests|FullyQualifiedName~SharpClaw.Tests.Gateway.GatewayEndpointGroupCatalogTests|FullyQualifiedName~SharpClaw.Tests.Gateway.GatewayInstanceLifecycleTests|FullyQualifiedName~SharpClaw.Tests.Gateway.GatewayRegistrationLoaderTests|FullyQualifiedName~SharpClaw.Tests.Gateway.InternalApiClientResolutionTests|FullyQualifiedName~SharpClaw.Tests.Gateway.SyntheticGatewayRegistrationTests'
+          - domain: Persistence Provider
+            filter: 'FullyQualifiedName~SharpClaw.Tests.Persistence.ApiKeyEncryptorBytesTests|FullyQualifiedName~SharpClaw.Tests.Persistence.DatabaseProviderOptionsTests'
+          - domain: Persistence Environment
+            filter: 'FullyQualifiedName~SharpClaw.Tests.Persistence.EnvironmentTemplateTests|FullyQualifiedName~SharpClaw.Tests.Persistence.InstallationKeyCompatibilityTests'
+          - domain: Persistence Instances
+            filter: 'FullyQualifiedName~SharpClaw.Tests.Persistence.SharpClawInstanceLifecycleTests|FullyQualifiedName~SharpClaw.Tests.Persistence.SharpClawInstancePathsTests'
+          - domain: Providers
+            filter: 'FullyQualifiedName~SharpClaw.Tests.Providers.CapabilityResolverTests|FullyQualifiedName~SharpClaw.Tests.Providers.ProviderCredentialBindingTests'
+          - domain: LlamaSharp
+            filter: 'FullyQualifiedName~SharpClaw.Tests.Providers.LlamaSharp'
+          - domain: Durable Storage
+            filter: 'FullyQualifiedName~SharpClaw.Tests.DurableStorage'
+          - domain: Direct Chat Kernel
+            filter: 'FullyQualifiedName~SharpClaw.Tests.Kernel.DirectChatKernelTests'
+          - domain: Client Request Authority
+            filter: 'FullyQualifiedName~SharpClaw.Tests.Frontend.ClientActionBoundaryTests'
+          - domain: Production Module Graph
+            filter: 'FullyQualifiedName~SharpClaw.Tests.Kernel.DefaultModuleSetHostGateTests'
+          - domain: Publishing
+            filter: 'FullyQualifiedName~SharpClaw.Tests.Publishing.PublishScriptDeploymentTests'
+          - domain: CI Guardrails
+            filter: 'FullyQualifiedName~SharpClaw.Tests.Ci.CiRequiredStatusCheckTests'
+    steps:
+      - name: Checkout frozen SharpClaw head
+        uses: actions/checkout@v4
+        with:
+          repository: SharpClaw-NET/SharpClaw
+          ref: 78d6e8e4da0b85ea60ee81b653f3ec52ff83d83b
+          path: SharpClaw
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Download frozen package graph
+        uses: actions/download-artifact@v4
+        with:
+          name: sharpclaw-frozen-bom
+          path: ${{ runner.temp }}\sharpclaw-frozen-bom
+
+      - name: Configure frozen package graph
+        shell: pwsh
+        run: |
+          $feed = Join-Path $env:RUNNER_TEMP "sharpclaw-frozen-bom\feed"
+          $config = Join-Path $env:RUNNER_TEMP "sharpclaw-frozen-bom\NuGet.config"
+          @"
+          <?xml version="1.0" encoding="utf-8"?>
+          <configuration>
+            <packageSources>
+              <clear />
+              <add key="sharpclaw-local" value="$feed" />
+              <add key="nuget.org" value="https://api.nuget.org/v3/index.json" protocolVersion="3" />
+            </packageSources>
+            <packageSourceMapping>
+              <packageSource key="sharpclaw-local">
+                <package pattern="SharpClaw.*" />
+              </packageSource>
+              <packageSource key="nuget.org">
+                <package pattern="*" />
+              </packageSource>
+            </packageSourceMapping>
+          </configuration>
+          "@ | Set-Content -LiteralPath $config -Encoding utf8
+          "SHARPCLAW_NUGET_CONFIG=$config" | Out-File -FilePath $env:GITHUB_ENV -Append
+          $bundle = Join-Path $env:RUNNER_TEMP "sharpclaw-frozen-bom\bundle"
+          "SharpClawContributionPayloadRoot=$bundle" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Restore
+        working-directory: SharpClaw
+        shell: pwsh
+        run: dotnet restore .\SharpClaw.Tests\SharpClaw.Tests.csproj --configfile $env:SHARPCLAW_NUGET_CONFIG -p:Configuration=Release
+
+      - name: Run correctness domain
+        working-directory: SharpClaw
+        shell: pwsh
+        run: >
+          dotnet test .\SharpClaw.Tests\SharpClaw.Tests.csproj
+          --configuration Release
+          --no-restore
+          --logger GitHubActions
+          --filter "TestCategory!=PerformanceDiagnostic&TestCategory!=PerformanceGate&(${{ matrix.filter }})"
