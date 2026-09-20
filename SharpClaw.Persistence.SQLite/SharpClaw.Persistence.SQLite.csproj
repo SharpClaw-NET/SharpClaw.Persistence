@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>SharpClaw.Persistence.SQLite</PackageId>
+    <Description>SharpClaw SQLite persistence module and owned EF Core migrations.</Description>
+    <PackageTags>SharpClaw;persistence;storage;sqlite;entity-framework</PackageTags>
+    <PersistenceModuleId>sharpclaw_persistence_sqlite</PersistenceModuleId>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackPersistenceModulePayload</TargetsForTfmSpecificContentInPackage>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <GenerateDependencyFile>true</GenerateDependencyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="SharpClaw.ModuleSDK" PrivateAssets="all" IncludeAssets="compile;build;buildTransitive" />
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" />
+    <ProjectReference Include="..\SharpClaw.Persistence\SharpClaw.Persistence.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="package.json" Link="contributions\sharpclaw_persistence_sqlite\package.json"
+             CopyToOutputDirectory="PreserveNewest" Pack="true"
+             PackagePath="contentFiles\any\$(TargetFramework)\contributions\sharpclaw_persistence_sqlite\package.json"
+             PackageCopyToOutput="true" />
+  </ItemGroup>
+</Project>

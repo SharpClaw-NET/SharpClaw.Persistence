@@ -1,0 +1,18 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+using SharpClaw.Runtime.INF.Persistence;
+
+namespace SharpClaw.Persistence.PostgreSQL;
+
+public sealed class DesignTimeFactory : IDesignTimeDbContextFactory<SharpClawDbContext>
+{
+    public SharpClawDbContext CreateDbContext(string[] args)
+    {
+        var options = new DbContextOptionsBuilder<SharpClawDbContext>()
+            .UseNpgsql(
+                "Host=localhost;Database=SharpClaw_Migrations;Username=sharpclaw;Password=sharpclaw",
+                provider => provider.MigrationsAssembly(typeof(DesignTimeFactory).Assembly.GetName().Name))
+            .Options;
+        return new SharpClawDbContext(options);
+    }
+}

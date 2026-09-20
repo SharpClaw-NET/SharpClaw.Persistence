@@ -1,0 +1,27 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TargetFramework>net10.0</TargetFramework>
+    <Version>0.5.0-beta.5</Version>
+    <AssemblyVersion>0.5.0.0</AssemblyVersion>
+    <FileVersion>0.5.0.0</FileVersion>
+    <InformationalVersion>0.5.0-beta.5</InformationalVersion>
+    <Authors>mkn8rn</Authors>
+    <Company>SharpClaw</Company>
+    <RepositoryUrl>https://github.com/SharpClaw-NET/SharpClaw.Persistence</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/SharpClaw-NET/SharpClaw.Persistence</PackageProjectUrl>
+    <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <NoWarn>$(NoWarn);NU1507;NU5100</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)LICENSE.md" Pack="true" PackagePath="\" Visible="false" />
+    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" Visible="false" />
+  </ItemGroup>
+</Project>

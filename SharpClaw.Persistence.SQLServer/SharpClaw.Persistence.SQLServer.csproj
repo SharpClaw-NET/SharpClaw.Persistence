@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>SharpClaw.Persistence.SQLServer</PackageId>
+    <Description>SharpClaw SQL Server persistence module and owned EF Core migrations.</Description>
+    <PackageTags>SharpClaw;persistence;storage;sql-server;entity-framework</PackageTags>
+    <PersistenceModuleId>sharpclaw_persistence_sqlserver</PersistenceModuleId>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackPersistenceModulePayload</TargetsForTfmSpecificContentInPackage>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <GenerateDependencyFile>true</GenerateDependencyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="SharpClaw.ModuleSDK" PrivateAssets="all" IncludeAssets="compile;build;buildTransitive" />
+    <ProjectReference Include="..\SharpClaw.Persistence\SharpClaw.Persistence.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="package.json" Link="contributions\sharpclaw_persistence_sqlserver\package.json"
+             CopyToOutputDirectory="PreserveNewest" Pack="true"
+             PackagePath="contentFiles\any\$(TargetFramework)\contributions\sharpclaw_persistence_sqlserver\package.json"
+             PackageCopyToOutput="true" />
+  </ItemGroup>
+</Project>

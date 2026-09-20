@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit3TestAdapter" />
+    <PackageReference Include="SharpClaw.ModuleSDK" />
+    <PackageReference Include="coverlet.collector" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SharpClaw.Persistence\SharpClaw.Persistence.csproj" />
+    <ProjectReference Include="..\SharpClaw.Persistence.JSONColdStore\SharpClaw.Persistence.JSONColdStore.csproj" />
+    <ProjectReference Include="..\SharpClaw.Persistence.PostgreSQL\SharpClaw.Persistence.PostgreSQL.csproj" />
+    <ProjectReference Include="..\SharpClaw.Persistence.SQLServer\SharpClaw.Persistence.SQLServer.csproj" />
+    <ProjectReference Include="..\SharpClaw.Persistence.SQLite\SharpClaw.Persistence.SQLite.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,18 @@
+{
+  "id": "sharpclaw_persistence_jsoncoldstore",
+  "displayName": "JSONColdStore Persistence",
+  "version": "0.5.0-beta.5",
+  "enabled": true,
+  "toolPrefix": "psj",
+  "runtime": "dotnet",
+  "hostMode": "in-process",
+  "entryAssembly": "SharpClaw.Persistence.JSONColdStore.dll",
+  "entryType": "SharpClaw.Persistence.JSONColdStore.JSONColdStorePersistenceModule",
+  "minHostVersion": "0.1.0-beta",
+  "author": "mkn8rn",
+  "description": "File-backed JSONColdStore persistence for SharpClaw.",
+  "license": "AGPL-3.0",
+  "platforms": [ "windows", "linux", "macos" ],
+  "exports": [],
+  "requires": []
+}

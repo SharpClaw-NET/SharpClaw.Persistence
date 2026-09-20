@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="SharpClaw.Persistence/SharpClaw.Persistence.csproj" />
+  <Project Path="SharpClaw.Persistence.JSONColdStore/SharpClaw.Persistence.JSONColdStore.csproj" />
+  <Project Path="SharpClaw.Persistence.PostgreSQL/SharpClaw.Persistence.PostgreSQL.csproj" />
+  <Project Path="SharpClaw.Persistence.SQLServer/SharpClaw.Persistence.SQLServer.csproj" />
+  <Project Path="SharpClaw.Persistence.SQLite/SharpClaw.Persistence.SQLite.csproj" />
+  <Project Path="SharpClaw.Persistence.Tests/SharpClaw.Persistence.Tests.csproj" />
+</Solution>

@@ -1,0 +1,18 @@
+{
+  "id": "sharpclaw_persistence_sqlserver",
+  "displayName": "SQL Server Persistence",
+  "version": "0.5.0-beta.5",
+  "enabled": true,
+  "toolPrefix": "pss",
+  "runtime": "dotnet",
+  "hostMode": "in-process",
+  "entryAssembly": "SharpClaw.Persistence.SQLServer.dll",
+  "entryType": "SharpClaw.Persistence.SQLServer.SQLServerPersistenceModule",
+  "minHostVersion": "0.1.0-beta",
+  "author": "mkn8rn",
+  "description": "SQL Server persistence and migrations for SharpClaw.",
+  "license": "AGPL-3.0",
+  "platforms": [ "windows", "linux", "macos" ],
+  "exports": [],
+  "requires": []
+}

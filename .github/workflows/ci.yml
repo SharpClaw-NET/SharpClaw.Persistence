@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main, dev, "release/**"]
+  pull_request:
+    branches: [main, dev, "release/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  DOTNET_NOLOGO: "true"
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet tool restore
+      - run: dotnet restore SharpClaw.Persistence.slnx
+      - run: dotnet build SharpClaw.Persistence.slnx --configuration Release --no-restore
+      - run: dotnet test SharpClaw.Persistence.slnx --configuration Release --no-build
+      - name: Verify generated migration models
+        run: |
+          dotnet ef migrations has-pending-model-changes --project SharpClaw.Persistence.PostgreSQL --startup-project SharpClaw.Persistence.PostgreSQL --context SharpClawDbContext --no-build --configuration Release
+          dotnet ef migrations has-pending-model-changes --project SharpClaw.Persistence.SQLServer --startup-project SharpClaw.Persistence.SQLServer --context SharpClawDbContext --no-build --configuration Release
+          dotnet ef migrations has-pending-model-changes --project SharpClaw.Persistence.SQLite --startup-project SharpClaw.Persistence.SQLite --context SharpClawDbContext --no-build --configuration Release
+      - name: Pack
+        run: dotnet pack SharpClaw.Persistence.slnx --configuration Release --no-build --output artifacts/packages
+      - uses: actions/upload-artifact@v4
+        with:
+          name: persistence-packages
+          path: artifacts/packages/*.nupkg
+          if-no-files-found: error

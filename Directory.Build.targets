@@ -1,0 +1,57 @@
+<Project>
+  <Target Name="PackPersistenceModulePayload"
+          Condition="'$(PersistenceModuleId)' != '' and Exists('$(TargetPath)')"
+          DependsOnTargets="ResolvePackageAssets">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="$(TargetPath)"
+                              PackagePath="contentFiles\any\$(TargetFramework)\contributions\$(PersistenceModuleId)\$(TargetFileName)"
+                              BuildAction="Content"
+                              PackageCopyToOutput="true" />
+      <TfmSpecificPackageFile Include="$(TargetDir)$(TargetName).deps.json"
+                              Condition="Exists('$(TargetDir)$(TargetName).deps.json')"
+                              PackagePath="contentFiles\any\$(TargetFramework)\contributions\$(PersistenceModuleId)\$(TargetName).deps.json"
+                              BuildAction="Content"
+                              PackageCopyToOutput="true" />
+      <!-- The design assembly is needed to resolve the colocated EF factory type, but
+           its code-generation toolchain is not part of the Runtime module payload. -->
+      <_PersistenceRuntimeDependency Include="@(RuntimeCopyLocalItems)"
+                                     Condition="'%(RuntimeCopyLocalItems.Extension)' == '.dll'
+                                                and !$([System.String]::Copy('%(RuntimeCopyLocalItems.Filename)').StartsWith('SharpClaw.'))
+                                                and !$([System.String]::Copy('%(RuntimeCopyLocalItems.Filename)').StartsWith('Microsoft.Extensions.'))
+                                                and '%(RuntimeCopyLocalItems.Filename)' != 'Microsoft.EntityFrameworkCore'
+                                                and '%(RuntimeCopyLocalItems.Filename)' != 'Microsoft.EntityFrameworkCore.Abstractions'
+                                                and '%(RuntimeCopyLocalItems.Filename)' != 'Microsoft.EntityFrameworkCore.Relational'
+                                                and '%(RuntimeCopyLocalItems.Filename)' != 'Humanizer'
+                                                and !$([System.String]::Copy('%(RuntimeCopyLocalItems.Filename)').StartsWith('Microsoft.Build'))
+                                                and !$([System.String]::Copy('%(RuntimeCopyLocalItems.Filename)').StartsWith('Microsoft.CodeAnalysis'))
+                                                and '%(RuntimeCopyLocalItems.Filename)' != 'Microsoft.VisualStudio.SolutionPersistence'
+                                                and '%(RuntimeCopyLocalItems.Filename)' != 'Mono.TextTemplating'
+                                                and '%(RuntimeCopyLocalItems.Filename)' != 'Newtonsoft.Json'
+                                                and '%(RuntimeCopyLocalItems.Filename)' != 'System.CodeDom'
+                                                and !$([System.String]::Copy('%(RuntimeCopyLocalItems.Filename)').StartsWith('System.Composition.'))" />
+      <TfmSpecificPackageFile Include="@(_PersistenceRuntimeDependency)"
+                              PackagePath="contentFiles\any\$(TargetFramework)\contributions\$(PersistenceModuleId)\%(_PersistenceRuntimeDependency.Filename)%(_PersistenceRuntimeDependency.Extension)"
+                              BuildAction="Content"
+                              PackageCopyToOutput="true" />
+      <_PersistenceNativeRuntimeFile Include="$(TargetDir)runtimes\**\*"
+                                     Condition="Exists('$(TargetDir)runtimes')" />
+      <TfmSpecificPackageFile Include="@(_PersistenceNativeRuntimeFile)"
+                              PackagePath="contentFiles\any\$(TargetFramework)\contributions\$(PersistenceModuleId)\runtimes\%(_PersistenceNativeRuntimeFile.RecursiveDir)%(_PersistenceNativeRuntimeFile.Filename)%(_PersistenceNativeRuntimeFile.Extension)"
+                              BuildAction="Content"
+                              PackageCopyToOutput="true" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="UseExactOwnedProjectReferenceVersions"
+          BeforeTargets="GenerateNuspec"
+          DependsOnTargets="_GetProjectReferenceVersions"
+          Condition="'$(IsPackable)' != 'false'">
+    <ItemGroup>
+      <_ProjectReferencesWithVersions Update="@(_ProjectReferencesWithVersions)"
+                                      Condition="'%(_ProjectReferencesWithVersions.ProjectVersion)' != ''
+                                                 and !$([System.String]::Copy('%(_ProjectReferencesWithVersions.ProjectVersion)').StartsWith('['))">
+        <ProjectVersion>[%(_ProjectReferencesWithVersions.ProjectVersion)]</ProjectVersion>
+      </_ProjectReferencesWithVersions>
+    </ItemGroup>
+  </Target>
+</Project>

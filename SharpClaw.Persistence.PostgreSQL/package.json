@@ -1,0 +1,18 @@
+{
+  "id": "sharpclaw_persistence_postgresql",
+  "displayName": "PostgreSQL Persistence",
+  "version": "0.5.0-beta.5",
+  "enabled": true,
+  "toolPrefix": "psp",
+  "runtime": "dotnet",
+  "hostMode": "in-process",
+  "entryAssembly": "SharpClaw.Persistence.PostgreSQL.dll",
+  "entryType": "SharpClaw.Persistence.PostgreSQL.PostgreSQLPersistenceModule",
+  "minHostVersion": "0.1.0-beta",
+  "author": "mkn8rn",
+  "description": "PostgreSQL persistence and migrations for SharpClaw.",
+  "license": "AGPL-3.0",
+  "platforms": [ "windows", "linux", "macos" ],
+  "exports": [],
+  "requires": []
+}

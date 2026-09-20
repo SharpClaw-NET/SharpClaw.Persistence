@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>SharpClaw.Persistence.PostgreSQL</PackageId>
+    <Description>SharpClaw PostgreSQL persistence module and owned EF Core migrations.</Description>
+    <PackageTags>SharpClaw;persistence;storage;postgresql;entity-framework</PackageTags>
+    <PersistenceModuleId>sharpclaw_persistence_postgresql</PersistenceModuleId>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);PackPersistenceModulePayload</TargetsForTfmSpecificContentInPackage>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <GenerateDependencyFile>true</GenerateDependencyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="SharpClaw.ModuleSDK" PrivateAssets="all" IncludeAssets="compile;build;buildTransitive" />
+    <ProjectReference Include="..\SharpClaw.Persistence\SharpClaw.Persistence.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="package.json" Link="contributions\sharpclaw_persistence_postgresql\package.json"
+             CopyToOutputDirectory="PreserveNewest" Pack="true"
+             PackagePath="contentFiles\any\$(TargetFramework)\contributions\sharpclaw_persistence_postgresql\package.json"
+             PackageCopyToOutput="true" />
+  </ItemGroup>
+</Project>
