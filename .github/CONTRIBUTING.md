@@ -1,4 +1,4 @@
-# Contributing to SharpClaw.ProviderIntegrations
+# Contributing to SharpClaw.Persistence
 
 Contributions are accepted through pull requests. By intentionally submitting code, documentation, tests, designs, or other material to this repository (a "Contribution"), you agree to the terms below.
 
