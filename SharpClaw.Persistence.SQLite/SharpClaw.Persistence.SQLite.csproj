@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageId>SharpClaw.Persistence.SQLite</PackageId>
+    <RootNamespace>SharpClaw.Migrations.SQLite</RootNamespace>
     <Description>SharpClaw SQLite persistence module and owned EF Core migrations.</Description>
     <PackageTags>SharpClaw;persistence;storage;sqlite;entity-framework</PackageTags>
     <PersistenceModuleId>sharpclaw_persistence_sqlite</PersistenceModuleId>

@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageId>SharpClaw.Persistence.PostgreSQL</PackageId>
+    <RootNamespace>SharpClaw.Migrations.Postgres</RootNamespace>
     <Description>SharpClaw PostgreSQL persistence module and owned EF Core migrations.</Description>
     <PackageTags>SharpClaw;persistence;storage;postgresql;entity-framework</PackageTags>
     <PersistenceModuleId>sharpclaw_persistence_postgresql</PersistenceModuleId>

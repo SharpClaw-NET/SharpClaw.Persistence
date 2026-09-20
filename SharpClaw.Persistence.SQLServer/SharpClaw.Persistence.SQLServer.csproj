@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageId>SharpClaw.Persistence.SQLServer</PackageId>
+    <RootNamespace>SharpClaw.Migrations.SqlServer</RootNamespace>
     <Description>SharpClaw SQL Server persistence module and owned EF Core migrations.</Description>
     <PackageTags>SharpClaw;persistence;storage;sql-server;entity-framework</PackageTags>
     <PersistenceModuleId>sharpclaw_persistence_sqlserver</PersistenceModuleId>
