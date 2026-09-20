@@ -44,10 +44,18 @@ jobs:
           fi
           echo "value=${version}" >> "${GITHUB_OUTPUT}"
       - run: dotnet restore SharpClaw.Persistence.slnx
-      - name: Build and test
-        run: dotnet test SharpClaw.Persistence.slnx --configuration Release -p:Version=${{ steps.version.outputs.value }}
+      - name: Build
+        run: dotnet build SharpClaw.Persistence.slnx --configuration Release --no-restore -p:Version=${{ steps.version.outputs.value }} -p:InformationalVersion=${{ steps.version.outputs.value }} -p:ContinuousIntegrationBuild=true
+      - name: Test
+        run: dotnet test SharpClaw.Persistence.slnx --configuration Release --no-build --no-restore
       - name: Pack immutable artifacts
-        run: dotnet pack SharpClaw.Persistence.slnx --configuration Release --no-build --output artifacts/packages -p:PackageVersion=${{ steps.version.outputs.value }} -p:Version=${{ steps.version.outputs.value }} -p:ContinuousIntegrationBuild=true
+        run: dotnet pack SharpClaw.Persistence.slnx --configuration Release --no-build --no-restore --output artifacts/packages -p:PackageVersion=${{ steps.version.outputs.value }} -p:Version=${{ steps.version.outputs.value }} -p:InformationalVersion=${{ steps.version.outputs.value }} -p:ContinuousIntegrationBuild=true
+      - name: Verify immutable package identity
+        env:
+          SHARPCLAW_PERSISTENCE_PACKAGE_ROOT: ${{ github.workspace }}/artifacts/packages
+          SHARPCLAW_PERSISTENCE_PACKAGE_VERSION: ${{ steps.version.outputs.value }}
+          SHARPCLAW_PERSISTENCE_COMMIT: ${{ github.sha }}
+        run: dotnet test SharpClaw.Persistence.Tests/SharpClaw.Persistence.Tests.csproj --configuration Release --no-build --no-restore --filter FullyQualifiedName~PackageIdentityTests.PackedReleaseIdentityMatchesSourceAndReviewedCommit
       - name: Record package hashes
         shell: bash
         run: sha256sum artifacts/packages/*.nupkg | tee artifacts/packages.sha256

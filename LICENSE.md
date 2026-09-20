@@ -20,9 +20,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 WRITTEN OFFER
 
 The source code for any program binaries or compressed scripts that are
-included with SharpClaw.ProviderIntegrations can be freely obtained at the
-following URL:
-https://github.com/SharpClaw-NET/SharpClaw.ProviderIntegrations
+included with SharpClaw.Persistence can be freely obtained at the following
+URL:
+https://github.com/SharpClaw-NET/SharpClaw.Persistence
 
 =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 

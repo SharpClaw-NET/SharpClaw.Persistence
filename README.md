@@ -2,6 +2,8 @@
 
 SharpClaw.Persistence contains the official storage modules for SharpClaw 0.5.0. Storage backends are discovered through the same module system as every other capability: the host selects a provider key, an installed module contributes the EF Core provider configuration, and each relational module carries and owns its own migrations. The repository is licensed under the GNU Affero General Public License v3.0 or later.
 
+The `version` and `license` in every module `package.json` are release identity, not an independent compatibility version: they must exactly match the containing NuGet package version and license expression. Package validation fails before publication when a source manifest, embedded manifest, nuspec, repository commit, or written source offer diverges.
+
 ## Packages
 
 | Package | `Database:Provider` | Compatibility alias | Migration owner |

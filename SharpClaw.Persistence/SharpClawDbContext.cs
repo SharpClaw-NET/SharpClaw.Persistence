@@ -7,7 +7,7 @@ using SharpClaw.Persistence;
 
 namespace SharpClaw.Runtime.INF.Persistence;
 
-public class SharpClawDbContext(
+public sealed class SharpClawDbContext(
     DbContextOptions<SharpClawDbContext> options,
     ISharpClawPersistenceSaveCoordinator? saveCoordinator = null)
     : DbContext(options), ISharpClawDataContext
@@ -29,15 +29,6 @@ public class SharpClawDbContext(
     public DbSet<ConfigurationEntryDB> ConfigurationEntries => Set<ConfigurationEntryDB>();
     public DbSet<ScopedStorageRecordDB> ScopedStorageRecords => Set<ScopedStorageRecordDB>();
     public DbSet<ScopedStorageIndexEntryDB> ScopedStorageIndexEntries => Set<ScopedStorageIndexEntryDB>();
-
-    public Task<int> SaveChangesThroughKernelAsync(CancellationToken cancellationToken = default) =>
-        _saveCoordinator is not null
-            ? _saveCoordinator.SaveChangesAsync(this, cancellationToken)
-            : throw new InvalidOperationException(
-                "The Runtime persistence save coordinator is not configured.");
-
-    public Task<int> SaveChangesTerminalAsync(CancellationToken cancellationToken = default) =>
-        SaveChangesCoreAsync(cancellationToken);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -112,12 +103,36 @@ public class SharpClawDbContext(
         }
     }
 
-    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
-        _saveCoordinator is not null
-            ? SaveChangesThroughKernelAsync(cancellationToken)
-            : SaveChangesCoreAsync(cancellationToken);
+    public override int SaveChanges() =>
+        throw SynchronousSaveNotSupported();
 
-    private async Task<int> SaveChangesCoreAsync(CancellationToken cancellationToken)
+    public override int SaveChanges(bool acceptAllChangesOnSuccess) =>
+        throw SynchronousSaveNotSupported();
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) =>
+        SaveChangesThroughKernelAsync(acceptAllChangesOnSuccess: true, cancellationToken);
+
+    public override Task<int> SaveChangesAsync(
+        bool acceptAllChangesOnSuccess,
+        CancellationToken cancellationToken = default) =>
+        SaveChangesThroughKernelAsync(acceptAllChangesOnSuccess, cancellationToken);
+
+    private Task<int> SaveChangesThroughKernelAsync(
+        bool acceptAllChangesOnSuccess,
+        CancellationToken cancellationToken)
+    {
+        var coordinator = _saveCoordinator
+            ?? throw new InvalidOperationException(
+                "The Runtime persistence save coordinator is not configured.");
+        return coordinator.SaveChangesAsync(
+            this,
+            acceptAllChangesOnSuccess,
+            cancellationToken);
+    }
+
+    internal async Task<int> SaveChangesTerminalAsync(
+        bool acceptAllChangesOnSuccess,
+        CancellationToken cancellationToken)
     {
         foreach (var entry in ChangeTracker.Entries<BaseEntity>())
         {
@@ -137,6 +152,9 @@ public class SharpClawDbContext(
             }
         }
 
-        return await base.SaveChangesAsync(cancellationToken);
+        return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
     }
+
+    private static NotSupportedException SynchronousSaveNotSupported() =>
+        new("SharpClaw persistence writes must use SaveChangesAsync so the Runtime kernel action boundary can authorize them.");
 }

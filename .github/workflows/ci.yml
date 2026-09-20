@@ -13,6 +13,7 @@ permissions:
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
   DOTNET_NOLOGO: "true"
+  PERSISTENCE_PACKAGE_VERSION: "0.5.0-dev.20260920.1"
 
 jobs:
   verify:
@@ -25,7 +26,7 @@ jobs:
           dotnet-version: 10.0.x
       - run: dotnet tool restore
       - run: dotnet restore SharpClaw.Persistence.slnx
-      - run: dotnet build SharpClaw.Persistence.slnx --configuration Release --no-restore
+      - run: dotnet build SharpClaw.Persistence.slnx --configuration Release --no-restore -p:Version=${{ env.PERSISTENCE_PACKAGE_VERSION }} -p:InformationalVersion=${{ env.PERSISTENCE_PACKAGE_VERSION }} -p:ContinuousIntegrationBuild=true
       - run: dotnet test SharpClaw.Persistence.slnx --configuration Release --no-build
       - name: Verify generated migration models
         run: |
@@ -33,7 +34,13 @@ jobs:
           dotnet ef migrations has-pending-model-changes --project SharpClaw.Persistence.SQLServer --startup-project SharpClaw.Persistence.SQLServer --context SharpClawDbContext --no-build --configuration Release
           dotnet ef migrations has-pending-model-changes --project SharpClaw.Persistence.SQLite --startup-project SharpClaw.Persistence.SQLite --context SharpClawDbContext --no-build --configuration Release
       - name: Pack
-        run: dotnet pack SharpClaw.Persistence.slnx --configuration Release --no-build --output artifacts/packages
+        run: dotnet pack SharpClaw.Persistence.slnx --configuration Release --no-build --output artifacts/packages -p:PackageVersion=${{ env.PERSISTENCE_PACKAGE_VERSION }} -p:Version=${{ env.PERSISTENCE_PACKAGE_VERSION }} -p:InformationalVersion=${{ env.PERSISTENCE_PACKAGE_VERSION }} -p:ContinuousIntegrationBuild=true
+      - name: Verify immutable package identity
+        env:
+          SHARPCLAW_PERSISTENCE_PACKAGE_ROOT: ${{ github.workspace }}/artifacts/packages
+          SHARPCLAW_PERSISTENCE_PACKAGE_VERSION: ${{ env.PERSISTENCE_PACKAGE_VERSION }}
+          SHARPCLAW_PERSISTENCE_COMMIT: ${{ github.sha }}
+        run: dotnet test SharpClaw.Persistence.Tests/SharpClaw.Persistence.Tests.csproj --configuration Release --no-build --no-restore --filter FullyQualifiedName~PackageIdentityTests.PackedReleaseIdentityMatchesSourceAndReviewedCommit
       - uses: actions/upload-artifact@v4
         with:
           name: persistence-packages
