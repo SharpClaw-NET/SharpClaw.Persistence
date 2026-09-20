@@ -51,18 +51,20 @@ jobs:
           SHARPCLAW_PERSISTENCE_PACKAGE_ROOT: ${{ runner.temp }}\sharpclaw-frozen-bom\feed
           SHARPCLAW_PERSISTENCE_PACKAGE_VERSION: 0.5.0-dev.20260920.1
           SHARPCLAW_PERSISTENCE_COMMIT: efbfaea0ab4ecff2bc55e13e37e48096468e4d70
-        run: >
-          dotnet test
-          "${{ runner.temp }}\sharpclaw-frozen-bom\sources\persistence\SharpClaw.Persistence.Tests\SharpClaw.Persistence.Tests.csproj"
-          --configuration Release
-          --no-restore
-          --filter "FullyQualifiedName~PackageIdentityTests.PackedReleaseIdentityMatchesSourceAndReviewedCommit"
-          -p:ArtifactsPath="${{ runner.temp }}\sharpclaw-frozen-bom\artifacts\persistence"
-          -p:UseArtifactsOutput=true
-          -p:SharpClawArtifactsRoot="${{ runner.temp }}\sharpclaw-frozen-bom\artifacts\persistence"
-          -p:Version=0.5.0-dev.20260920.1
-          -p:InformationalVersion=0.5.0-dev.20260920.1
-          -p:ContinuousIntegrationBuild=true
+        run: |
+          $root = "${{ runner.temp }}\sharpclaw-frozen-bom"
+          $project = Join-Path $root "sources\persistence\SharpClaw.Persistence.Tests\SharpClaw.Persistence.Tests.csproj"
+          $config = Join-Path $root "NuGet.config"
+          dotnet restore $project --configfile $config --packages $env:NUGET_PACKAGES
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+          dotnet test $project `
+            --configuration Release `
+            --no-restore `
+            --filter "FullyQualifiedName~PackageIdentityTests.PackedReleaseIdentityMatchesSourceAndReviewedCommit" `
+            -p:Version=0.5.0-dev.20260920.1 `
+            -p:InformationalVersion=0.5.0-dev.20260920.1 `
+            -p:ContinuousIntegrationBuild=true
 
       - name: Upload frozen package graph
         uses: actions/upload-artifact@v4
