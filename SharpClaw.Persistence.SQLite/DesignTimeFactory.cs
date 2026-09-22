@@ -8,8 +8,9 @@ public sealed class DesignTimeFactory : IDesignTimeDbContextFactory<SharpClawDbC
 {
     public SharpClawDbContext CreateDbContext(string[] args)
     {
-        var options = new DbContextOptionsBuilder<SharpClawDbContext>()
-            .UseSqlite(
+        var builder = new DbContextOptionsBuilder<SharpClawDbContext>();
+        SQLitePersistenceProvider.ConfigureCanonicalModel(builder);
+        var options = builder.UseSqlite(
                 "Data Source=sharpclaw_migrations.db",
                 provider => provider.MigrationsAssembly(typeof(DesignTimeFactory).Assembly.GetName().Name))
             .Options;

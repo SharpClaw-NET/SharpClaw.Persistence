@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SharpClaw.Contracts.Entities;
 using SharpClaw.Contracts.Entities.Core;
 using SharpClaw.Contracts.Persistence;
@@ -77,30 +76,6 @@ public sealed class SharpClawDbContext(
             entity.Property(index => index.RecordKey).HasMaxLength(256);
             entity.Property(index => index.StringValue).HasMaxLength(ScopedStorageStringIndexValueMaxLength);
         });
-
-        ConfigureForProvider(modelBuilder);
-    }
-
-    private void ConfigureForProvider(ModelBuilder modelBuilder)
-    {
-        if (Database.ProviderName != "Microsoft.EntityFrameworkCore.Sqlite")
-            return;
-
-        foreach (var property in modelBuilder.Model.GetEntityTypes().SelectMany(type => type.GetProperties()))
-        {
-            if (property.ClrType == typeof(DateTimeOffset))
-            {
-                property.SetValueConverter(new ValueConverter<DateTimeOffset, long>(
-                    value => value.ToUnixTimeMilliseconds(),
-                    value => DateTimeOffset.FromUnixTimeMilliseconds(value)));
-            }
-            else if (property.ClrType == typeof(DateTimeOffset?))
-            {
-                property.SetValueConverter(new ValueConverter<DateTimeOffset?, long?>(
-                    value => value.HasValue ? value.Value.ToUnixTimeMilliseconds() : null,
-                    value => value.HasValue ? DateTimeOffset.FromUnixTimeMilliseconds(value.Value) : null));
-            }
-        }
     }
 
     public override int SaveChanges() =>

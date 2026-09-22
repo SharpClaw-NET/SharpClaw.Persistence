@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace SharpClaw.Persistence.SQLite;
 
@@ -15,6 +16,7 @@ public sealed class SQLitePersistenceProvider : ISharpClawPersistenceProvider
     public void Configure(DbContextOptionsBuilder optionsBuilder, SharpClawPersistenceProviderContext context)
     {
         _ = SQLiteInitialized.Value;
+        ConfigureCanonicalModel(optionsBuilder);
         var settings = RelationalPersistenceOptions.FromConfiguration(
             context.Configuration,
             Key,
@@ -27,6 +29,9 @@ public sealed class SQLitePersistenceProvider : ISharpClawPersistenceProvider
                 provider.CommandTimeout(timeout);
         });
     }
+
+    internal static void ConfigureCanonicalModel(DbContextOptionsBuilder optionsBuilder) =>
+        optionsBuilder.ReplaceService<IModelCustomizer, SQLiteSharpClawModelCustomizer>();
 
     private static bool InitializeSQLite()
     {

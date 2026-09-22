@@ -1,7 +1,7 @@
 {
   "id": "sharpclaw_persistence_sqlite",
   "displayName": "SQLite Persistence",
-  "version": "0.5.0-dev.20260920.1",
+  "version": "0.5.0-dev.20260922.1",
   "enabled": true,
   "toolPrefix": "psq",
   "runtime": "dotnet",

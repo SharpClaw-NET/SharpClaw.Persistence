@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using SharpClaw.Contracts.Entities.Core;
 using SharpClaw.Contracts.Persistence;
 using SharpClaw.Persistence.JSONColdStore;
 using SharpClaw.Persistence.PostgreSQL;
@@ -117,6 +118,48 @@ public sealed class PersistenceModuleTests
         dbContext.Database.HasPendingModelChanges().Should().BeFalse();
     }
 
+    [Test]
+    public void SQLite_ModuleOwnsCanonicalDateTimeOffsetMapping()
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:SQLite"] = "Data Source=:memory:",
+            })
+            .Build();
+        using var services = new ServiceCollection().BuildServiceProvider();
+        var provider = new SQLitePersistenceProvider();
+        var options = new SharpClawPersistenceOptions { ProviderKey = provider.Key };
+        var builder = new DbContextOptionsBuilder<Runtime.INF.Persistence.SharpClawDbContext>();
+        provider.Configure(
+            builder,
+            new SharpClawPersistenceProviderContext(
+                services,
+                configuration,
+                options,
+                typeof(Runtime.INF.Persistence.SharpClawDbContext),
+                UseMigrations: true));
+        using var dbContext = new Runtime.INF.Persistence.SharpClawDbContext(builder.Options);
+
+        var property = dbContext.Model.FindEntityType(typeof(ProviderDB))!
+            .FindProperty(nameof(ProviderDB.CreatedAt))!;
+
+        property.GetValueConverter().Should().NotBeNull();
+        property.GetValueConverter()!.ProviderClrType.Should().Be(typeof(long));
+    }
+
+    [Test]
+    public void CanonicalContext_ContainsNoProviderIdentityBranch()
+    {
+        var source = File.ReadAllText(Path.Combine(
+            FindSourceRoot(),
+            "SharpClaw.Persistence",
+            "SharpClawDbContext.cs"));
+
+        source.Should().NotContain("Microsoft.EntityFrameworkCore.Sqlite");
+        source.Should().NotContain("ConfigureForProvider");
+    }
+
     private static IEnumerable<TestCaseData> RelationalMigrationCases()
     {
         yield return new TestCaseData(
@@ -128,5 +171,18 @@ public sealed class PersistenceModuleTests
         yield return new TestCaseData(
             () => (DbContext)new SQLite.DesignTimeFactory().CreateDbContext([]),
             "20260920114922_InitialCreate");
+    }
+
+    private static string FindSourceRoot()
+    {
+        for (var directory = new DirectoryInfo(AppContext.BaseDirectory);
+             directory is not null;
+             directory = directory.Parent)
+        {
+            if (File.Exists(Path.Combine(directory.FullName, "SharpClaw.Persistence.slnx")))
+                return directory.FullName;
+        }
+
+        throw new AssertionException("The SharpClaw.Persistence source root could not be located.");
     }
 }
