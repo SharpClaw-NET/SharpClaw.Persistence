@@ -1,7 +1,7 @@
 {
   "id": "sharpclaw_persistence_postgresql",
   "displayName": "PostgreSQL Persistence",
-  "version": "0.5.0-dev.20260922.1",
+  "version": "0.5.0-dev.20260922.2",
   "enabled": true,
   "toolPrefix": "psp",
   "runtime": "dotnet",
