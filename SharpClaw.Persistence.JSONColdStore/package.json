@@ -1,7 +1,7 @@
 {
   "id": "sharpclaw_persistence_jsoncoldstore",
   "displayName": "JSONColdStore Persistence",
-  "version": "0.5.0-dev.20260922.2",
+  "version": "0.5.0-dev.20260922.3",
   "enabled": true,
   "toolPrefix": "psj",
   "runtime": "dotnet",
